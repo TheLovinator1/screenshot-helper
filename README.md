@@ -1,2 +1,2 @@
-# scrot-um
+# scrot-helper
 Sharex clone made with scrot
