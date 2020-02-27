@@ -6,6 +6,16 @@ import subprocess
 import webbrowser
 
 
+def append_url_to_file(url: str):
+    """
+    Append url to file.
+    """
+    append_time = datetime.datetime.now()
+    with open("urls.txt", "a") as f:
+        f.write(f"{append_time} - {url}\n")
+        print(f"Appended to file: {append_time} - {url}")
+
+
 def send_notification(message: str):
     """
     Send desktop notification.
@@ -56,6 +66,9 @@ def screenshot():
 
     # Send desktop notification
     send_notification(f"URL: {url}")
+
+    # Append url to file
+    append_url_to_file(url=url)
 
     # Copy link to clipboard
     clipboard(variable=url)
