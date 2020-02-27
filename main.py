@@ -1,20 +1,26 @@
-import datetime
-import random
-import os
 import argparse
+import datetime
+import os
+import random
 import subprocess
 import webbrowser
+
+
+def send_notification(message: str):
+    """
+    Send desktop notification.
+    """
+    subprocess.Popen(["notify-send", message])
+    print(f"Message sent: {message}")
 
 
 def random_char(amount: int):
     """
     Generate string from x amount of letters and digits.
     """
-
     letters_and_digits = (
         "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
     )
-
     return "".join(random.choice(letters_and_digits) for x in range(amount))
 
 
@@ -27,7 +33,7 @@ def create_folder():
             print(f"Couldn't find path ({path}). Creating!")
             os.makedirs(path)
     except Exception as e:
-        print(f"Something is fucked!\n{e}")
+        print(f"Failed to create folder:\n{e}")
         return 0
 
 
@@ -48,7 +54,8 @@ def screenshot():
     # Take the image
     subprocess.run(["scrot", option, "--freeze", f"{path}/{filename}.png"])
 
-    print(f"URL: {url}")
+    # Send desktop notification
+    send_notification(f"URL: {url}")
 
     # Copy link to clipboard
     clipboard(variable=url)
@@ -58,6 +65,9 @@ def screenshot():
 
 
 def clipboard(variable):
+    """
+    Add url to clipboard with xsel.
+    """
     subprocess.Popen(
         ("xsel", "--input", "--clipboard"),
         stdin=subprocess.PIPE,
@@ -66,15 +76,12 @@ def clipboard(variable):
 
 
 if __name__ == "__main__":
-
     now = datetime.datetime.now()
     # TODO: Different file types should go to different folders
 
-    # 10 characters in filename
-    filename = random_char(amount=10)
-    # TODO: Remove trailing slash
-    path = f"/mnt/wd_white/Nginx/www.lovinator/i/{now.year}/{now.month}"
-    url = f"https://lovinator.xyz/i/{now.year}/{now.month}/{filename}.png"
+    filename: str = random_char(amount=10)
+    path: str = f"/mnt/wd_white/Nginx/www.lovinator/i/{now:%Y}/{now:%m}"
+    url: str = f"https://lovinator.xyz/i/{now:%Y}/{now:%m}/{filename}.png"
 
     # Command-line options, arguments and sub-commands
     parser = argparse.ArgumentParser(description="ShareX but cooler.")
@@ -88,7 +95,7 @@ if __name__ == "__main__":
         action="store_true",
     )
     g.add_argument(
-        "-u",
+        "-f",
         "--focused",
         help="use the currently focused window",
         required=False,
