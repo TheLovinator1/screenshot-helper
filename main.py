@@ -188,6 +188,7 @@ if __name__ == "__main__":
         help="upload a file. File will be replaced if already exist",
         required=False,
         action="store",
+        metavar="FILEPATH",
     )
     args = parser.parse_args()
 
