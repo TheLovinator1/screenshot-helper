@@ -93,7 +93,21 @@ def take_screenshot():
     if args.select:
         option = "--select"
     if args.focused:
-        option = "--focused"
+        # FIXME: This does not work. Captures whole desktop instead of
+        # active window. Could be i3 that fucks.
+
+        output = subprocess.run(
+            "xdotool getactivewindow", capture_output=True, shell=True
+        )
+
+        # Convert bytes to string
+        clean_output = output.stdout.decode()
+
+        # Remove new line
+        clean_output = clean_output.strip()
+
+        send_notification(f"xdotool getactivewindow.\n{clean_output}")
+        option = f"-i {clean_output}"
 
     image_filename: str = random_char(amount=10)
     image_path: str = f"/mnt/wd_white/Nginx/www.lovinator/i/{now:%Y}/{now:%m}"
@@ -107,9 +121,17 @@ def take_screenshot():
 
     # Take the actual screenshot
     try:
-        subprocess.run(
-            ["scrot", option, "--freeze", f"{image_path}/{image_filename}.png"]
-        )
+        command_list = [
+            "maim",
+            f"{image_path}/{image_filename}.png",
+            option,
+            "--quality 10",
+            "--bordersize=3",
+            "--color=255,204,0,80",
+            "--nodecorations=1",
+        ]
+        send_notification(f"Command\n{command_list}")
+        subprocess.run(command_list)
     except Exception as e:
         send_notification(f"Failed to create folder.\n{e}")
 
