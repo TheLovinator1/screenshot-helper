@@ -130,8 +130,8 @@ def take_screenshot():
             "--color=255,204,0,80",
             "--nodecorations=1",
         ]
-        send_notification(f"Command\n{command_list}")
         subprocess.run(command_list)
+
     except Exception as e:
         send_notification(f"Failed to create folder.\n{e}")
 
