@@ -13,7 +13,7 @@ def upload_file(source_file: str):
     """
 
     file_name: str = os.path.basename(source_file)  # Remove path
-    folder: str = f"/mnt/wd_white/Nginx/www.lovinator/files/{now:%Y}/{now:%m}/"
+    folder: str = f"/mnt/red/docker_data/nginx/www/files/{now:%Y}/{now:%m}/"
     destination: str = f"{folder}/{file_name}"
     file_url: str = f"https://lovinator.xyz/files/{now:%Y}/{now:%m}/{file_name}"
 
@@ -36,7 +36,7 @@ def append_url_to_file(url: str):
     """
     # TODO: Add file type
     append_time = datetime.datetime.now()
-    with open("urls.txt", "a") as f:
+    with open("/home/lovinator/urls.txt", "a") as f:
         f.write(f"{append_time} - {url}\n")
         print(f"Appended to file: {append_time} - {url}")
 
@@ -110,7 +110,7 @@ def take_screenshot():
         option = f"-i {clean_output}"
 
     image_filename: str = random_char(amount=10)
-    image_path: str = f"/mnt/wd_white/Nginx/www.lovinator/i/{now:%Y}/{now:%m}"
+    image_path: str = f"/mnt/red/docker_data/nginx/www/i/{now:%Y}/{now:%m}"
     image_url: str = f"https://lovinator.xyz/i/{now:%Y}/{now:%m}/{image_filename}.png"
 
     # Check if path is working.
@@ -126,9 +126,8 @@ def take_screenshot():
             f"{image_path}/{image_filename}.png",
             option,
             "--quality 10",
-            "--bordersize=3",
-            "--color=255,204,0,80",
-            "--nodecorations=1",
+            "--bordersize=1",
+            "--color=255,204,0",
         ]
         subprocess.run(command_list)
 
