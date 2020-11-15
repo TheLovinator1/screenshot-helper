@@ -4,8 +4,9 @@ import os
 import random
 import shutil
 import subprocess
+from typing import Set
 import webbrowser
-
+from settings import Settings
 
 def upload_file(source_file: str):
     """
@@ -13,13 +14,12 @@ def upload_file(source_file: str):
     """
 
     file_name: str = os.path.basename(source_file)  # Remove path
-    folder: str = f"/mnt/red/docker_data/nginx/www/files/{now:%Y}/{now:%m}/"
-    destination: str = f"{folder}/{file_name}"
-    file_url: str = f"https://lovinator.xyz/files/{now:%Y}/{now:%m}/{file_name}"
+    destination: str = f"{Settings.file_folder}{file_name}"
+    file_url: str = f"{Settings.file_url}{now:%Y}/{now:%m}/{file_name}"
 
     # Check if path is working.
     try:
-        create_folder(path=folder)
+        create_folder(path=Settings.file_folder)
     except Exception as e:
         send_notification(f"Failed to create folder.\n{e}")
 
@@ -36,7 +36,7 @@ def append_url_to_file(url: str):
     """
     # TODO: Add file type
     append_time = datetime.datetime.now()
-    with open("/home/lovinator/urls.txt", "a") as f:
+    with open(Settings.history_file, "a") as f:
         f.write(f"{append_time} - {url}\n")
         print(f"Appended to file: {append_time} - {url}")
 
@@ -89,7 +89,7 @@ def take_screenshot():
     """
     Screenshot and move to folder.
     """
-
+    option = ""
     if args.select:
         option = "--select"
     if args.focused:
@@ -110,8 +110,8 @@ def take_screenshot():
         option = f"-i {clean_output}"
 
     image_filename: str = random_char(amount=10)
-    image_path: str = f"/mnt/red/docker_data/nginx/www/i/{now:%Y}/{now:%m}"
-    image_url: str = f"https://lovinator.xyz/i/{now:%Y}/{now:%m}/{image_filename}.png"
+    image_path: str = f"{Settings.image_folder}{now:%Y}/{now:%m}"
+    image_url: str = f"{Settings.image_url}{now:%Y}/{now:%m}/{image_filename}.{Settings.file_extension}"
 
     # Check if path is working.
     try:
@@ -128,6 +128,7 @@ def take_screenshot():
             "--quality 10",
             "--bordersize=1",
             "--color=255,204,0",
+            "--hidecursor"
         ]
         subprocess.run(command_list)
 
@@ -139,6 +140,7 @@ def take_screenshot():
 
 def main():
     # TODO: Only add to clipboard and open url if there actually is a image
+    url = ""
     # If image
     if args.focused or args.select:
         url = take_screenshot()
