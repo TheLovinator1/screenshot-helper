@@ -17,7 +17,8 @@ Arguments:
                         upload a file. File will be replaced if already exist
 
 ```
-
+## Ranger Custom Command
+Copy the contents from [ranger.py](ranger.py) to ~/.config/ranger/commands.py.
 
 ## Built With
 * [Maim](https://github.com/naelstrof/maim) - The screen capture application this program built on top of
