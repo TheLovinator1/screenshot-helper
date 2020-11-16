@@ -14,7 +14,7 @@ def upload_file(source_file: str):
     """
 
     file_name: str = os.path.basename(source_file)  # Remove path
-    file_destination: str = f"{Settings.file_folder}{file_name}"
+    file_destination: str = f"{Settings.file_folder}/{now:%Y}/{now:%m}/{file_name}"
     file_url: str = f"{Settings.file_url}{now:%Y}/{now:%m}/{file_name}"
 
     # Check if path is working.
@@ -84,30 +84,7 @@ def add_to_clipboard(clipboard_string: str):
     ).communicate(clipboard_string)
 
 
-def take_screenshot():
-    """
-    Screenshot and move to folder.
-    """
-    option = ""
-    if args.select:
-        option = "--select"
-    if args.focused:
-        # FIXME: This does not work. Captures whole desktop instead of
-        # active window. Could be i3 that fucks.
-
-        output = subprocess.run(
-            "xdotool getactivewindow", capture_output=True, shell=True
-        )
-
-        # Convert bytes to string
-        clean_output = output.stdout.decode()
-
-        # Remove new line
-        clean_output = clean_output.strip()
-
-        send_desktop_notification(f"xdotool getactivewindow.\n{clean_output}")
-        option = f"-i {clean_output}"
-
+def take_screenshot_select():
     image_filename: str = random_char(amount=10)
     image_path: str = f"{Settings.image_folder}{now:%Y}/{now:%m}"
     image_url: str = f"{Settings.image_url}{now:%Y}/{now:%m}/{image_filename}.{Settings.file_extension}"
@@ -118,12 +95,11 @@ def take_screenshot():
     except Exception as e:
         send_desktop_notification(f"Failed to create folder.\n{e}")
 
-    # Take the actual screenshot
     try:
         command_list = [
             "maim",
             f"{image_path}/{image_filename}.png",
-            option,
+            "--select",
             "--quality 10",
             "--bordersize=4",
             "--color=255,0,0",
@@ -136,12 +112,11 @@ def take_screenshot():
 
     return image_url
 
-
 def main():
     # TODO: Only add to clipboard and open url if there actually is a image
     url = ""
-    if args.focused or args.select:
-        url = take_screenshot()
+    if args.select:
+        url = take_screenshot_select()
     if args.upload:
         url = upload_file(source_file=str(args.upload))
 
