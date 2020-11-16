@@ -4,9 +4,9 @@ import os
 import random
 import shutil
 import subprocess
-from typing import Set
 import webbrowser
 from settings import Settings
+
 
 def upload_file(source_file: str):
     """
@@ -14,23 +14,22 @@ def upload_file(source_file: str):
     """
 
     file_name: str = os.path.basename(source_file)  # Remove path
-    destination: str = f"{Settings.file_folder}{file_name}"
+    file_destination: str = f"{Settings.file_folder}{file_name}"
     file_url: str = f"{Settings.file_url}{now:%Y}/{now:%m}/{file_name}"
 
     # Check if path is working.
     try:
         create_folder(path=Settings.file_folder)
     except Exception as e:
-        send_notification(f"Failed to create folder.\n{e}")
+        send_desktop_notification(f"Failed to create folder.\n{e}")
 
-    # Copy
-    shutil.copy(source_file, destination)
-    print(f"{file_name} - {source_file} copied to {destination}")
+    shutil.copy(source_file, file_destination)
+    print(f"{file_name} - {source_file} copied to {file_destination}")
 
     return file_url
 
 
-def append_url_to_file(url: str):
+def append_url_to_history_file(url: str):
     """
     Append url to file.
     """
@@ -41,7 +40,7 @@ def append_url_to_file(url: str):
         print(f"Appended to file: {append_time} - {url}")
 
 
-def send_notification(message: str):
+def send_desktop_notification(message: str):
     """
     Send desktop notification. Needs libnotify.
     """
@@ -74,7 +73,7 @@ def create_folder(path: str):
         return 0
 
 
-def clipboard(clipboard_string: str):
+def add_to_clipboard(clipboard_string: str):
     """
     Add url to clipboard with xsel.
     """
@@ -106,7 +105,7 @@ def take_screenshot():
         # Remove new line
         clean_output = clean_output.strip()
 
-        send_notification(f"xdotool getactivewindow.\n{clean_output}")
+        send_desktop_notification(f"xdotool getactivewindow.\n{clean_output}")
         option = f"-i {clean_output}"
 
     image_filename: str = random_char(amount=10)
@@ -117,7 +116,7 @@ def take_screenshot():
     try:
         create_folder(path=image_path)
     except Exception as e:
-        send_notification(f"Failed to create folder.\n{e}")
+        send_desktop_notification(f"Failed to create folder.\n{e}")
 
     # Take the actual screenshot
     try:
@@ -126,14 +125,14 @@ def take_screenshot():
             f"{image_path}/{image_filename}.png",
             option,
             "--quality 10",
-            "--bordersize=1",
-            "--color=255,204,0",
-            "--hidecursor"
+            "--bordersize=4",
+            "--color=255,0,0",
+            "--hidecursor",
         ]
         subprocess.run(command_list)
 
     except Exception as e:
-        send_notification(f"Failed to create folder.\n{e}")
+        send_desktop_notification(f"Failed to create folder.\n{e}")
 
     return image_url
 
@@ -141,31 +140,19 @@ def take_screenshot():
 def main():
     # TODO: Only add to clipboard and open url if there actually is a image
     url = ""
-    # If image
     if args.focused or args.select:
         url = take_screenshot()
-
-    # If file
     if args.upload:
         url = upload_file(source_file=str(args.upload))
 
-    # Send desktop notification
-    send_notification(f"URL: {url}")
-
-    # Append url to file
-    append_url_to_file(url=url)
-
-    # Copy link to clipboard
-    clipboard(clipboard_string=url)
-
-    # Open link in browser
+    send_desktop_notification(f"URL: {url}")
+    append_url_to_history_file(url=url)
+    add_to_clipboard(clipboard_string=url)
     webbrowser.open_new_tab(url=url)
 
 
 if __name__ == "__main__":
     now = datetime.datetime.now()
-
-    # Command-line options, arguments and sub-commands
     parser = argparse.ArgumentParser(description="ShareX but cooler.")
 
     g = parser.add_mutually_exclusive_group(required=True)
