@@ -18,7 +18,7 @@ Arguments:
 
 ```
 ## Ranger Custom Command
-Copy the contents from [ranger.py](ranger.py) to ~/.config/ranger/commands.py.
+Copy the contents from [ranger.py](ranger.py) to ~/.config/ranger/commands.py and modify the username.
 
 ## Built With
 * [Maim](https://github.com/naelstrof/maim) - The screen capture application this program built on top of
